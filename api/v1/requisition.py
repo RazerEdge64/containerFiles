@@ -9,6 +9,9 @@ from girder.utility import ziputil
 from girder.utility.model_importer import ModelImporter
 from girder.utility.progress import ProgressContext
 
+from bson.objectid import ObjectId
+import json
+import logging
 
 class Requisition(Resource):
     """API Endpoint for Requisitions."""
@@ -22,7 +25,7 @@ class Requisition(Resource):
 
         self.route('POST', (), self.createRequisition)
         self.route('DELETE', (':id',), self.deleteRequisition)
-        # self.route('POST', (':id', ), self.updateRole)
+        self.route('POST', (':id', ), self.updateRequisition)
         self.route('GET', (), self.searchRequisition)
         #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
@@ -40,12 +43,20 @@ class Requisition(Resource):
                default='', strip=True)
         .param('history', "Patient's history.", required=False,
                default='', strip=True)
-        .errorResponse('Could not create Role, write access was denied', 403)    #Need to change message
+        .param('requisitionId', "Identification Number.", required=False,
+               default='', strip=True)
+        .param('status', "Status of the requisition.", required=False,
+               default='', strip=True)
+        .param('assignedAgent', "Collect Agent assigned to this requisition.", required=False,
+               default='', strip=True)
+        .errorResponse('Could not create Requisition, write access was denied', 403)    #Need to change message
     )
-    def createRequisition(self, slideId,  age, bloodGroup, history):
+    def createRequisition(self, slideId,  age, bloodGroup, history, requisitionId, status, assignedAgent ):
         user = self.getCurrentUser()
         newRequisition = self._model.createRequisition(slideId=slideId, creatorId=user['_id'],
-        age=age, bloodGroup=bloodGroup, history=history)
+        age=age, bloodGroup=bloodGroup, history=history, requisitionId=requisitionId, status=status,
+        assignedAgent=assignedAgent)
+
         return newRequisition
     
     #------------DELETING A REQUISITION-------------------------
@@ -62,31 +73,30 @@ class Requisition(Resource):
         self._model.remove(requisition)
         return {'message': 'Deleted requisition for %s.' % requisition['slideId']}
     
-    # #-------------UPDATING A ROLE------------------------
+    #-------------UPDATING A REQUISITION------------------------
 
-    # @access.user(scope=TokenScope.DATA_WRITE)
-    # @filtermodel(model=RequisitionModel)
-    # @autoDescribeRoute(
-    #     Description('Update a role.')
-    #     .responseClass('Role')
-    #     .modelParam('id', model=RoleModel, level=AccessType.WRITE)
-    #     .param('name', 'Name of the folder.', required=False, strip=True)
-    #     .param('description', 'Description for the role.', required=False, strip=True)
-    #     .errorResponse('ID was invalid.')
-    #     .errorResponse('Write access was denied for the role or its new parent object.', 403)
-    # )
-    # def updateRole(self, role, name, description):
+    @access.user(scope=TokenScope.DATA_WRITE)
+    @filtermodel(model=RequisitionModel)
+    @autoDescribeRoute(
+        Description('Update a requisition.')
+        .responseClass('Requisition')
+        .modelParam('id', model=RequisitionModel, level=AccessType.WRITE)
+        .param('status', 'Status of the requisition', required=False, strip=True)
+        .param('assignedAgent', 'Collect Agent assigned to this requisition.', required=False, strip=True)
+        .errorResponse('ID was invalid.')
+        .errorResponse('Write access was denied for the Requisition.', 403)
+    )
+    def updateRequisition(self, requisition, status, assignedAgent):
         
-    #     if name is not None:
-    #         role['name'] = name
-    #     if description is not None:
-    #         role['description'] = description
+        requisition['status'] = status
 
-    #     role = self._model.updateRole(role)
+        requisition['assignedAgent'] = ObjectId(assignedAgent)
 
-    #     return role
+        requisition = self._model.updateRequisition(requisition)
 
-    #------------------GETTING ALL THE ROLES-----------------
+        return requisition
+
+    #------------------GETTING ALL THE REQUISITION-----------------
 
     @access.public(scope=TokenScope.DATA_READ)
     @filtermodel(model=RequisitionModel)

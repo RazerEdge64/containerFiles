@@ -24,7 +24,7 @@ class Requisition(AccessControlledModel):
         # })
 
         self.exposeFields(level=AccessType.READ, fields=(
-            '_id', 'slideId','creatorId', 'age', 'bloodGroup', 'history', 'created', 'updated'))
+            '_id', 'slideId','creatorId', 'age', 'bloodGroup', 'history', 'status', 'created', 'updated'))
     
     #---------------------VALIDATE OVERRIDING-------------------
 
@@ -35,7 +35,7 @@ class Requisition(AccessControlledModel):
 
     #-------------------CREATING ROLE-------------------
 
-    def createRequisition(self, slideId, creatorId, age, bloodGroup, history):
+    def createRequisition(self, slideId, creatorId, age, bloodGroup, history, requisitionId, status, assignedAgent):
         
         now = datetime.datetime.utcnow()
 
@@ -45,28 +45,31 @@ class Requisition(AccessControlledModel):
             'creatorId': creatorId,
             'bloodGroup':bloodGroup,
             'history':history,
+            'requisitionId':requisitionId,
+            'status':status,
+            'assignedAgent':assignedAgent,
             'created': now,
             'updated': now,
         }
 
         return self.save(requisition)
 
-    #--------------------DELETING ROLE---------------------
+    #--------------------DELETING REQUISITION---------------------
 
     def remove(self, requisition):
         # Delete this folder
         super().remove(requisition)
 
-    # #--------------------UPDATING ROLE----------------------
+    #--------------------UPDATING REQUISITION----------------------
 
-    # def updateRole(self, role):
+    def updateRequisition(self, requisition):
     
-    #     role['modified'] = datetime.datetime.utcnow()
+        requisition['updated'] = datetime.datetime.utcnow()
 
-    #     # Validate and save the folder
-    #     return self.save(role)
+        # Validate and save the folder
+        return self.save(requisition)
 
-    # #--------------------SEARCHING ROLES--------------------
+    #--------------------SEARCHING REQUISITION--------------------
 
     def _searchRequisition(self):
 

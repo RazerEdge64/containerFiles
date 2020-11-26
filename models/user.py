@@ -398,14 +398,14 @@ class User(AccessControlledModel):
         # roles_string = role
         # roles_list = roles_string.split(" ")
         roles_dict = json.loads(role)
-        rolesObjId={}
-        i=-1
-        for key in roles_dict:
-            z = ObjectId(key)
-            a = i+1
-            a=str(a)
-            rolesObjId[a] = z
-            i=i+1
+        # rolesObjId={}
+        # i=-1
+        # for key in roles_dict:
+        #     z = ObjectId(key)
+        #     a = i+1
+        #     a=str(a)
+        #     rolesObjId[a] = z
+        #     i=i+1
             
         #
         from .setting import Setting
@@ -421,7 +421,7 @@ class User(AccessControlledModel):
             'lastName': lastName,
             'created': datetime.datetime.utcnow(),
             'emailVerified': False,
-            'role' : rolesObjId,
+            'role' : roles_dict,
             'status': 'pending' if requireApproval else 'enabled',
             'admin': admin,
             'size': 0,

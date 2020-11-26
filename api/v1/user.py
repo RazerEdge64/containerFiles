@@ -16,6 +16,9 @@ from girder.settings import SettingKey
 from girder.utility import mail_utils
 
 
+from bson.objectid import ObjectId
+
+
 class User(Resource):
     """API Endpoint for users in the system."""
 
@@ -230,6 +233,16 @@ class User(Resource):
         user['email'] = email
         user['mobileNumber'] = mobileNumber
         roles_dict = json.loads(role)
+
+        # rolesObjId={}
+        # i=-1
+        # for key in roles_dict:
+        #     z = ObjectId(key)
+        #     a = i+1
+        #     a=str(a)
+        #     rolesObjId[a] = z
+        #     i=i+1
+
         user['role'] = roles_dict
 
         # Only admins can change admin state
