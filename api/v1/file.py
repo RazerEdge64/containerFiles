@@ -15,6 +15,7 @@ from girder.utility import RequestBodyStream
 from girder.utility.model_importer import ModelImporter
 from girder.utility.progress import ProgressContext
 
+import logging
 
 class File(Resource):
     """
@@ -222,6 +223,9 @@ class File(Resource):
             chunk = params['chunk']
         else:
             chunk = RequestBodyStream(cherrypy.request.body)
+            logging.error(chunk)
+            logging.error(params)
+            logging.error(offset)
         user = self.getCurrentUser()
 
         if upload['userId'] != user['_id']:
@@ -232,6 +236,7 @@ class File(Resource):
                 'Server has received %s bytes, but client sent offset %s.' % (
                     upload['received'], offset))
         try:
+            logging.error('S3 upload----')
             return Upload().handleChunk(upload, chunk, filter=True, user=user)
         except IOError as exc:
             if exc.errno == errno.EACCES:

@@ -35,7 +35,7 @@ class Item(Resource):
         self.route('POST', (':id', 'copy'), self.copyItem)
         self.route('PUT', (':id', 'metadata'), self.setMetadata)
         self.route('DELETE', (':id', 'metadata'), self.deleteMetadata)
-        #added by Shubhang on 23rd nov
+        #added by Shubhang on 23rd nov 
         self.route('PUT', ('moveItems',), self.moveItems)
 
     @access.public(scope=TokenScope.DATA_READ)
