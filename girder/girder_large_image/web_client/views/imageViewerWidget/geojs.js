@@ -28,8 +28,10 @@ var GeojsImageViewerWidget = ImageViewerWidget.extend({
                     return restRequest({
                         type: 'GET',
                         url: 'item/' + this.itemId + '/tiles',
-                        data: {projection: 'EPSG:3857'}
+                        data: { projection: 'EPSG:3857' }
                     }).done((resp) => {
+                        console.log('item metadata')
+                        console.log(resp)
                         this.levels = resp.levels;
                         this.tileWidth = resp.tileWidth;
                         this.tileHeight = resp.tileHeight;
@@ -52,6 +54,7 @@ var GeojsImageViewerWidget = ImageViewerWidget.extend({
     },
 
     render: function () {
+        console.log('hi guys in render')
         // If script or metadata isn't loaded, then abort
         if (!window.geo || !this.tileWidth || !this.tileHeight || this.deleted) {
             return this;
@@ -63,32 +66,66 @@ var GeojsImageViewerWidget = ImageViewerWidget.extend({
         }
 
         var geo = window.geo; // this makes the style checker happy
-
+        
         var params;
         if (!this.metadata.geospatial || !this.metadata.bounds) {
             var w = this.sizeX, h = this.sizeY;
             params = geo.util.pixelCoordinateParams(
                 this.el, w, h, this.tileWidth, this.tileHeight);
+            console.log("----------these are params--------")
+            console.log(params)
             params.layer.useCredentials = true;
             params.layer.url = this._getTileUrl('{z}', '{x}', '{y}');
             if (this.tileWidth > 8192 || this.tileHeight > 8192) {
                 params.layer.renderer = 'canvas';
             }
+            /*params.map.gcs='EPSG:3857'
+            params.map.ingcs='EPSG:4326'
+            params.map.unitsPerPixel= 156543
+            //params.map.maxBounds={};*/
+
             this.viewer = geo.map(params.map);
+            console.log(this.viewer);
+            window.mapViewer=this.viewer;
+            //ADDED
+            console.log('//---LAYER---//')
+            geo.tileLayer({map:this.viewer})
+            //geo.imageTile({index:{x:0,y:0,level:0}})
+            console.log(geo);
+            //console.log(geo.imageTile({index:{x:0,y:0,level:0},size:{x:256,y:256},overlap:{x:0,y:0}}))
+            console.log(geo.tileLayer({map:this.viewer}));
+            console.log('//---//')
+            console.log('Inside if')
+            
+            /*this.viewer.bounds({
+                
+                left:  34555,
+                right:  45073,
+                top: 15103,
+                bottom:   23144
+
+            });*/
+
             params.layer.autoshareRenderer = false;
             this._layer = this.viewer.createLayer('osm', params.layer);
+            
+            window.yourVariable=this._layer;
+            
+            console.log(this._layer)
+            console.log(this._layer.tileSources)
         } else {
             params = {
                 keepLower: false,
                 attribution: null,
-                url: this._getTileUrl('{z}', '{x}', '{y}', {'encoding': 'PNG', 'projection': 'EPSG:3857'}),
+                url: this._getTileUrl('{z}', '{x}', '{y}', { 'encoding': 'PNG', 'projection': 'EPSG:3857' }),
                 useCredentials: true,
                 maxLevel: this.levels - 1
             };
             // the metadata levels is the count including level 0, so use one
             // less than the value specified
-            this.viewer = geo.map({node: this.el, max: this.levels - 1});
+            this.viewer = geo.map({ node: this.el, max: this.levels - 1 });
             if (this.metadata.bounds.xmin !== this.metadata.bounds.xmax && this.metadata.bounds.ymin !== this.metadata.bounds.ymax) {
+                console.log('hi guys inside another if')
                 this.viewer.bounds({
                     left: this.metadata.bounds.xmin,
                     right: this.metadata.bounds.xmax,

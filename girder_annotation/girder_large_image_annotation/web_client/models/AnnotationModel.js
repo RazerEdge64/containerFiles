@@ -381,6 +381,8 @@ export default AccessControlledModel.extend({
         if (canskip && !this._inFetch) {
             return;
         }
+        //Added by Shubhang
+        console.log('Inside AnnotationModel.js for bounds');
         var lastRegion = Object.assign({}, this._region);
         this._region.left = Math.max(0, bounds.left - xoverlap);
         this._region.top = Math.max(0, bounds.top - yoverlap);

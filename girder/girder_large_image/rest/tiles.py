@@ -37,6 +37,8 @@ from large_image.exceptions import TileGeneralException
 from ..models.image_item import ImageItem
 from .. import loadmodelcache
 
+#Code written by Shubhang
+import logging
 
 MimeTypeExtensions = {
     'image/jpeg': 'jpg',
@@ -327,6 +329,9 @@ class TilesItemResource(ItemResource):
             allow return a response whcih may be a redirect.
         :return: a function that returns the raw image data.
         """
+        #Code added by Shubhang
+        logging.error("Inside get tile function")
+
         try:
             x, y, z = int(x), int(y), int(z)
         except ValueError:
